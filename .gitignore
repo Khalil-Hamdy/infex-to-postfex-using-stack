@@ -1,32 +1,166 @@
-# Prerequisites
-*.d
+#include<iostream>
+#include<string>
+#include<sstream>
+#include<algorithm>
+#include<cmath>
+#include<stack>
+using namespace std;
+//bool valid =1;
+int help(char c)
+{
+    if(c=='+' || c=='-')
+        return 1;
+    else if(c=='*'|| c=='/')
+        return 2;
+    else if(c=='^')
+        return 3;
+    else
+        return 0;
+}
+string infex_to_postfex(string exp)
+{
+    stack<char> st;
+    string result="";
+    for(int i=0; i<exp.length(); i++)
+    {
+        if(exp[i]==' ')
+            continue;
+        if(isdigit(exp[i]))
+        {
+            string num="";
+            int p=i;
+            while(p<exp.length())
+            {
+                if(isdigit(exp[p]))
+                {
+                    num+=exp[p];
+                    p++;
+                }
+                else
+                {
+                    num+=" ";
+                    break;
+                }
+            }
+            result+=num;
+            i=p-1;
+        }
+        else if(exp[i]=='(' || exp[i]=='['|| exp[i]=='{')
+        {
+            st.push(exp[i]);
+        }
+        else if(exp[i]==')')
+        {
+            while(!st.empty() && st.top()!='(')
+            {
+                result+=st.top();
+                result+=" ";
+                st.pop();
+            }
+            st.pop();
+        }
+        else if(exp[i]==']')
+        {
+            while(!st.empty() && st.top()!='[')
+            {
+                result+=st.top();
+                result+=" ";
+                st.pop();
+            }
+            st.pop();
+        }
+        else if(exp[i]=='}')
+        {
+            while(!st.empty() && st.top()!='{')
+            {
+                result+=st.top();
+                result+=" ";
+                st.pop();
+            }
+            st.pop();
+        }
+        else if(exp[i]=='+' ||exp[i]=='-' ||exp[i]=='*' ||exp[i]=='/' ||exp[i]=='^')
+        {
+            while(!st.empty() && help(exp[i])<=help(st.top()))
+            {
+                result+=st.top();
+                result+=" ";
+                st.pop();
+            }
+            st.push(exp[i]);
+        }
+        else
+        {
+            cout<<"Invalid input\n";
+            while(!st.empty())
+                st.pop();
+        }
+    }
+    while(!st.empty())
+    {
+        result+=" ";
+        result+=st.top();
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+        st.pop();
+    }
+    return result;
 
-# Precompiled Headers
-*.gch
-*.pch
+}
+double help2(double last,double brelast,char c)
+{
+    if(c=='+')
+        return last+brelast;
+    else if(c=='-')
+        return last-brelast;
+    else if(c=='*')
+        return last*brelast;
+    else if(c=='/')
+        return last/brelast;
+    else if(c=='^')
+        return pow(last,brelast);
+    else
+        return 0;
+}
+double result_of_postfex(string exp)
+{
+    stack<float> st;
+    string num="";
+    //int last,brelast;
+    for(int i=0; i<exp.length(); i++)
+    {
+        if(exp[i]==' ')
+            continue;
+        if(isdigit(exp[i]))
+        {
+            while(isdigit(exp[i]))
+            {
+                num+=exp[i];
+                i++;
+            }
+            stringstream geek(num);
+            float x=0;
+            geek >>x;
+            st.push(x);
+            num="";
+        }
+        else
+        {
+            float last=st.top();
+            st.pop();
+            float brelast=st.top();
+            st.pop();
+            st.push(help2(brelast,last,exp[i]));
+        }
+    }
+    return st.top();
+}
+int main()
+{
+    cout<<"Enter your Expression: ";
+    string x;
+    cin>>x;
+    cout<<infex_to_postfex(x)<<endl;
+    cout<<result_of_postfex(infex_to_postfex(x))<<endl;
+    return 0;
+}
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
